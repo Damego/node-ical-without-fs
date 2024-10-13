@@ -1,4 +1,3 @@
-const fs = require('fs');
 const axios = require('axios');
 const ical = require('./ical.js');
 
@@ -125,35 +124,6 @@ async.fromURL = function (url, options, cb) {
 };
 
 /**
- * Load iCal data from a file and parse it.
- *
- * @param {string} filename   - File path to load.
- * @param {icsCallback} [cb]  - Callback function.
- *                              If no callback is provided a promise will be returned.
- *
- * @returns {optionalPromise} Promise is returned if no callback is passed.
- */
-async.parseFile = function (filename, cb) {
-  return promiseCallback((resolve, reject) => {
-    fs.readFile(filename, 'utf8', (error, data) => {
-      if (error) {
-        reject(error);
-        return;
-      }
-
-      ical.parseICS(data, (error, ics) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-
-        resolve(ics);
-      });
-    });
-  }, cb);
-};
-
-/**
  * Parse iCal data from a string.
  *
  * @param {string} data       - String containing iCal data.
@@ -176,18 +146,6 @@ async.parseICS = function (data, cb) {
 };
 
 /**
- * Load iCal data from a file and parse it.
- *
- * @param {string} filename   - File path to load.
- *
- * @returns {iCalData} Parsed iCal data.
- */
-sync.parseFile = function (filename) {
-  const data = fs.readFileSync(filename, 'utf8');
-  return ical.parseICS(data);
-};
-
-/**
  * Parse iCal data from a string.
  *
  * @param {string} data - String containing iCal data.
@@ -196,23 +154,6 @@ sync.parseFile = function (filename) {
  */
 sync.parseICS = function (data) {
   return ical.parseICS(data);
-};
-
-/**
- * Load iCal data from a file and parse it.
- *
- * @param {string} filename   - File path to load.
- * @param {icsCallback} [cb]  - Callback function.
- *                              If no callback is provided this function runs synchronously.
- *
- * @returns {iCalData|undefined} Parsed iCal data or undefined if a callback is being used.
- */
-autodetect.parseFile = function (filename, cb) {
-  if (!cb) {
-    return sync.parseFile(filename);
-  }
-
-  async.parseFile(filename, cb);
 };
 
 /**
@@ -236,7 +177,6 @@ autodetect.parseICS = function (data, cb) {
 module.exports = {
   // Autodetect
   fromURL: async.fromURL,
-  parseFile: autodetect.parseFile,
   parseICS: autodetect.parseICS,
   // Sync
   sync,
